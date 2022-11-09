@@ -18,9 +18,10 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 async function run(){
     try{
-
+        // service collection
         const serviceCollection = client.db('dentistFantastic').collection('services');
 
+        //services get api
         app.get('/services' , async(req , res)=>{
             const query = {};
             let cursor;
@@ -36,6 +37,7 @@ async function run(){
             res.send(services)
         });
 
+        // individual service get api
         app.get('/services/:id' , async(req , res)=>{
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
@@ -44,6 +46,7 @@ async function run(){
 
         });
 
+        //post service api
         app.post('/services' , async(req , res)=>{
             const order = req.body;
             const result = await serviceCollection.insertOne(order);
