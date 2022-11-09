@@ -26,15 +26,21 @@ async function run(){
             let cursor;
             if(req.query.length){
                 const size = parseInt(req.query.length);
-                cursor = serviceCollection.find(query).limit(size);
+                cursor = serviceCollection.find(query).limit(size).sort({_id:-1}) ;
                 
             }
             else{
-                cursor = serviceCollection.find(query);
+                cursor = serviceCollection.find(query).sort({_id:-1});
             }
             const services = await cursor.toArray();
             res.send(services)
-        })
+        });
+
+        app.post('/services' , async(req , res)=>{
+            const order = req.body;
+            const result = await serviceCollection.insertOne(order);
+            res.send(result);
+        });
 
     }
     finally{
