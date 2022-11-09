@@ -59,7 +59,7 @@ async function run(){
         app.get('/comments/:id' , async(req , res)=>{
             const id = req.params.id;
             const query = {serviceId: id};
-            const cursor = commentCollection.find(query).sort({time:1});
+            const cursor = commentCollection.find(query);
             const comments = await cursor.toArray();
             res.send(comments)
         });
