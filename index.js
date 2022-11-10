@@ -27,7 +27,8 @@ async function run(){
         //jwt
         app.post('/jwt' , (req , res)=>{
             const user = req.body;
-            console.log(user);
+            const token = jwt.sign(user , process.env.ACCESS_TOKEN_SECRET , {expiresIn: "1h"});
+            res.send({token});
         });
 
         //services get api
@@ -60,6 +61,14 @@ async function run(){
             const order = req.body;
             const result = await serviceCollection.insertOne(order);
             res.send(result);
+        });
+
+        //get all comments
+        app.get('/comments' , async(req , res)=>{
+            const query = {};
+            const cursor = commentCollection.find(query).sort({_id: -1});
+            const comments = await cursor.toArray();
+            res.send(comments)
         });
 
         //get comments by service id
