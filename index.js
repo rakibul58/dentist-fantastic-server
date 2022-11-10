@@ -17,104 +17,122 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@clu
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-async function run(){
-    try{
+async function run() {
+    try {
         // service collection
         const serviceCollection = client.db('dentistFantastic').collection('services');
         // comments collection
         const commentCollection = client.db('dentistFantastic').collection('comments');
 
         //jwt
-        app.post('/jwt' , (req , res)=>{
+        app.post('/jwt', (req, res) => {
             const user = req.body;
-            const token = jwt.sign(user , process.env.ACCESS_TOKEN_SECRET , {expiresIn: "1h"});
-            res.send({token});
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
+            res.send({ token });
         });
 
         //services get api
-        app.get('/services' , async(req , res)=>{
+        app.get('/services', async (req, res) => {
             const query = {};
             let cursor;
-            if(req.query.length){
+            if (req.query.length) {
                 const size = parseInt(req.query.length);
-                cursor = serviceCollection.find(query).limit(size).sort({_id:-1}) ;
-                
+                cursor = serviceCollection.find(query).limit(size).sort({ _id: -1 });
+
             }
-            else{
-                cursor = serviceCollection.find(query).sort({_id:-1});
+            else {
+                cursor = serviceCollection.find(query).sort({ _id: -1 });
             }
             const services = await cursor.toArray();
             res.send(services)
         });
 
         // individual service get api
-        app.get('/services/:id' , async(req , res)=>{
+        app.get('/services/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const cursor = await serviceCollection.findOne(query);
             res.send(cursor);
 
         });
 
         //post service api
-        app.post('/services' , async(req , res)=>{
+        app.post('/services', async (req, res) => {
             const order = req.body;
             const result = await serviceCollection.insertOne(order);
             res.send(result);
         });
 
         //get all comments
-        app.get('/comments' , async(req , res)=>{
+        app.get('/comments', async (req, res) => {
             let query;
-            if(req.query.email){
+            if (req.query.email) {
                 const email = req.query.email;
-                query = {email: email}
+                query = { email: email }
             }
-            else{
+            else {
                 query = {};
             }
-            const cursor = commentCollection.find(query).sort({_id: -1});
+            const cursor = commentCollection.find(query).sort({ _id: -1 });
             const comments = await cursor.toArray();
             res.send(comments)
         });
 
         //get comments by service id
-        app.get('/comments/:id' , async(req , res)=>{
+        app.get('/comments/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {serviceId: id};
-            const cursor = commentCollection.find(query).sort({_id: -1});
+            const query = { serviceId: id };
+            const cursor = commentCollection.find(query).sort({ _id: -1 });
             const comments = await cursor.toArray();
             res.send(comments)
         });
 
         //post comment api
-        app.post('/comments' , async(req , res)=>{
+        app.post('/comments', async (req, res) => {
             const comment = req.body;
             const result = await commentCollection.insertOne(comment);
             res.send(result);
         });
 
-        //delete comment
-        app.delete('/comments/:id' , async(req , res)=>{
+        //patch comment api
+        app.patch('/comments/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: ObjectId(id)};
+            const review = req.body.review;
+            const time = req.body.newTime;
+            const query = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    review: review,
+                    time: time
+                }
+            }
+
+            const result = await commentCollection.updateOne(query, updatedDoc);
+            res.send(result);
+
+        });
+
+        //delete comment
+        app.delete('/comments/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
             const result = await commentCollection.deleteOne(query);
             res.send(result);
         });
 
     }
-    finally{
+    finally {
 
     }
 }
 
-run().catch(err=>console.error(err))
+run().catch(err => console.error(err))
 
 
-app.get('/' , (req , res)=> {
+app.get('/', (req, res) => {
     res.send('Dentist Fantastic Server is running');
 });
 
-app.listen(port , ()=>{
+app.listen(port, () => {
     console.log(`server running on port ${port}`);
 });
