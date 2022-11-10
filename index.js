@@ -65,7 +65,14 @@ async function run(){
 
         //get all comments
         app.get('/comments' , async(req , res)=>{
-            const query = {};
+            let query;
+            if(req.query.email){
+                const email = req.query.email;
+                query = {email: email}
+            }
+            else{
+                query = {};
+            }
             const cursor = commentCollection.find(query).sort({_id: -1});
             const comments = await cursor.toArray();
             res.send(comments)
