@@ -92,7 +92,15 @@ async function run(){
             const comment = req.body;
             const result = await commentCollection.insertOne(comment);
             res.send(result);
-        })
+        });
+
+        //delete comment
+        app.delete('/comments/:id' , async(req , res)=>{
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await commentCollection.deleteOne(query);
+            res.send(result);
+        });
 
     }
     finally{
