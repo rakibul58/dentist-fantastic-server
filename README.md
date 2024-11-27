@@ -38,7 +38,7 @@ The **Dentist Fantastic** server is a Node.js and Express-based backend applicat
 
 1. Clone the repository:  
    ```bash  
-   git clone https://github.com/your-username/dentist-fantastic-server.git  
+   git clone https://github.com/rakibul58/dentist-fantastic-server.git  
    ```  
 
 2. Navigate to the project directory:  
